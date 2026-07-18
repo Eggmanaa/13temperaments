@@ -42,31 +42,43 @@ function profileToText(p, i) {
   return lines.join("\n");
 }
 
+const ITEM = {
+  type: "object",
+  properties: {
+    title: { type: "string", description: "A short, vivid name for this point (3-7 words)." },
+    detail: { type: "string", description: "3-5 full sentences. Name the specific dimensions and scores driving it, what it looks like in ordinary life, and why it happens." }
+  },
+  required: ["title", "detail"]
+};
+
 const ANALYSIS_SCHEMA = {
   type: "object",
   properties: {
     flowScore: { type: "integer", description: "Ease-of-flow 0-100. Higher = more natural, low-friction connection." },
     flowLabel: { type: "string", description: "3-5 word label for the score, e.g. 'Strong natural flow'." },
-    flowRationale: { type: "string", description: "1-2 sentences explaining the score honestly." },
+    flowRationale: { type: "string", description: "3-4 sentences explaining the score honestly, naming what lifts it and what pulls it down." },
     headline: { type: "string", description: "One warm, specific sentence naming the heart of this relationship." },
-    connection: {
-      type: "array", description: "Points of natural connection.",
-      items: { type: "object", properties: { title: { type: "string" }, detail: { type: "string" } }, required: ["title", "detail"] }
+    overview: { type: "string", description: "Two substantial paragraphs (roughly 150-220 words total) reading the whole shape of this pairing: the dominant pattern, how reactivity and regulation sit across the people, and what this relationship is fundamentally like to live inside." },
+    dimensionReadings: {
+      type: "array",
+      description: "The 6-9 most consequential dimensions for this pairing, largest gaps and most significant shared extremes first.",
+      items: {
+        type: "object",
+        properties: {
+          dimension: { type: "string", description: "The dimension name, e.g. 'Threat Sensitivity'." },
+          pattern: { type: "string", description: "Short tag: 'wide gap', 'shared high', 'shared low', or 'close match'." },
+          reading: { type: "string", description: "3-4 sentences on what this specific comparison means between these people day to day, using the dimension's metaphor and scores." }
+        },
+        required: ["dimension", "pattern", "reading"]
+      }
     },
-    gifts: {
-      type: "array", description: "The gifts each person naturally flows to when connecting; what each brings the other.",
-      items: { type: "object", properties: { title: { type: "string" }, detail: { type: "string" } }, required: ["title", "detail"] }
-    },
-    contention: {
-      type: "array", description: "Points of contention or friction, named honestly but without blame.",
-      items: { type: "object", properties: { title: { type: "string" }, detail: { type: "string" } }, required: ["title", "detail"] }
-    },
-    practices: {
-      type: "array", description: "Concrete, doable practices to increase ease of flow, fitted to this specific pairing.",
-      items: { type: "object", properties: { title: { type: "string" }, detail: { type: "string" } }, required: ["title", "detail"] }
-    }
+    connection: { type: "array", description: "Points of natural connection: where these people meet easily and well.", items: ITEM },
+    gifts: { type: "array", description: "The gifts each person naturally flows to when connecting. Name WHO brings each gift and what it gives the other.", items: ITEM },
+    contention: { type: "array", description: "Points of contention or friction, named honestly but without blame, with the mechanism behind each.", items: ITEM },
+    practices: { type: "array", description: "Concrete, doable practices fitted to this exact pairing. Each should be specific enough to try this week.", items: ITEM },
+    closing: { type: "string", description: "One warm closing paragraph (60-100 words) naming what is genuinely good here and the single most important thing to tend." }
   },
-  required: ["flowScore", "flowLabel", "flowRationale", "headline", "connection", "gifts", "contention", "practices"]
+  required: ["flowScore", "flowLabel", "flowRationale", "headline", "overview", "dimensionReadings", "connection", "gifts", "contention", "practices", "closing"]
 };
 
 const SYSTEM = `You are the Temperament Atlas Companion, a warm, perceptive guide who analyzes how people connect through the lens of the Thirteen Temperaments framework.
@@ -85,7 +97,9 @@ CORE PRINCIPLES:
 - Warm, relational, concrete voice. Second person where natural. No jargon dumps, no corporate tone, no em dashes.
 - If profiles come from an uploaded PDF, read the person's scores/results from it faithfully.
 
-EASE-OF-FLOW METER (flowScore 0-100): estimate how much natural, low-friction ease this pairing has BEFORE deliberate effort. Weigh complementary strengths, shared wavelengths, and the number and depth of friction points. Be honest: a loving, worthwhile relationship can still be hard-flowing (a lower score just means it rewards intention). Anchor: 80-100 unusually easy; 60-79 strong with a few edges; 40-59 real friction alongside real connection; 20-39 hard-flowing, rewards deliberate work; 0-19 highly abrasive without structure.`;
+EASE-OF-FLOW METER (flowScore 0-100): estimate how much natural, low-friction ease this pairing has BEFORE deliberate effort. Weigh complementary strengths, shared wavelengths, and the number and depth of friction points. Be honest: a loving, worthwhile relationship can still be hard-flowing (a lower score just means it rewards intention). Anchor: 80-100 unusually easy; 60-79 strong with a few edges; 40-59 real friction alongside real connection; 20-39 hard-flowing, rewards deliberate work; 0-19 highly abrasive without structure.
+
+DEPTH: Take the time to reason carefully before you answer. Compare every dimension, not only the obvious ones. Look for second-order effects, where one person's high reactivity meets the other's regulation, where two highs amplify, where a gap that looks like friction is actually the relationship's greatest resource. Then write generously. A thin answer is a failed answer here. Give real substance, specific examples from ordinary life, and enough detail that the reader recognizes themselves.`;
 
 async function callGemini(key, payload) {
   const res = await fetch(GEMINI_URL(key), {
@@ -95,11 +109,29 @@ async function callGemini(key, payload) {
   });
   const data = await res.json();
   if (!res.ok) {
-    throw new Error(data?.error?.message || `Gemini HTTP ${res.status}`);
+    const msg = data?.error?.message || `Gemini HTTP ${res.status}`;
+    if (res.status === 429 || /quota|rate limit/i.test(msg)) {
+      throw new Error(
+        "The analysis service has reached its usage limit for now. Please try again in a little while."
+      );
+    }
+    if (res.status === 503 || res.status === 500) {
+      throw new Error("The analysis service is briefly unavailable. Please try again in a moment.");
+    }
+    throw new Error(msg);
   }
   const cand = data?.candidates?.[0];
-  const text = cand?.content?.parts?.map((p) => p.text).filter(Boolean).join("") || "";
-  return text;
+  // With thinking enabled, reasoning parts are flagged `thought`. Keep only real answer parts.
+  const parts = cand?.content?.parts || [];
+  const text = parts.filter((p) => !p.thought).map((p) => p.text).filter(Boolean).join("") || "";
+  const finish = cand?.finishReason;
+  if (!text && finish === "MAX_TOKENS") {
+    throw new Error("The response ran past its length budget before finishing. Try again, or analyze fewer people at once.");
+  }
+  if (!text) {
+    throw new Error("The model returned an empty response" + (finish ? ` (${finish})` : "") + ".");
+  }
+  return { text, finish };
 }
 
 function json(obj, status = 200) {
@@ -154,9 +186,17 @@ export async function onRequestPost(context) {
       }
       const userParts = [];
       let instruction =
-        "Analyze the connection between the people below. If any details come from attached PDF result documents, read each person's temperament results from them.\n\n" +
+        "Analyze the connection between the people below in depth. If any details come from attached PDF result documents, read each person's temperament results from them carefully before beginning.\n\n" +
         contextText +
-        "\n\nReturn your analysis as JSON matching the required schema. Make 'connection', 'gifts', 'contention', and 'practices' each 2-4 items, specific to these people. Vary length naturally.";
+        "\n\nWork through this properly before answering. Compare all thirteen dimensions across the people, identify the widest gaps and the most significant shared extremes, consider how each person's regulation (Region IV) meets the other's reactivity (Regions I-III), and consult the framework's 'concert' notes for dimensions that interact.\n\n" +
+        "Return your analysis as JSON matching the required schema. Be COMPREHENSIVE:\n" +
+        "- 'dimensionReadings': 6 to 9 dimensions, the most consequential first.\n" +
+        "- 'connection', 'gifts', 'contention', 'practices': 4 to 6 items each.\n" +
+        "- Every 'detail' should run 3 to 5 full sentences and cite the specific dimensions and scores driving it.\n" +
+        "- 'gifts' must make clear WHO brings each gift and what it gives the other person.\n" +
+        "- Use the framework's own metaphors (The Watchtower, The Forge-Fire, The Hearth, and so on) naturally.\n" +
+        "- Be concrete about ordinary life: what this looks like on a Tuesday evening, not in the abstract.\n" +
+        "Vary sentence length. No em dashes.";
       userParts.push({ text: instruction });
       for (const pp of pdfParts) userParts.push(pp);
 
@@ -166,12 +206,15 @@ export async function onRequestPost(context) {
         generationConfig: {
           temperature: 0.75,
           topP: 0.95,
-          maxOutputTokens: 4096,
+          // Thinking tokens are drawn from this same budget, so it is set high enough
+          // to allow deep reasoning AND a long, complete report.
+          maxOutputTokens: 32768,
+          thinkingConfig: { thinkingLevel: "high" },
           responseMimeType: "application/json",
           responseSchema: ANALYSIS_SCHEMA
         }
       };
-      const text = await callGemini(key, payload);
+      const { text } = await callGemini(key, payload);
       let parsed;
       try {
         parsed = JSON.parse(text);
@@ -191,7 +234,7 @@ export async function onRequestPost(context) {
 
     const contents = [];
     // seed the model with the profile context as the first user turn
-    const seedParts = [{ text: `CONTEXT FOR THIS CONVERSATION:\n\n${contextText}${priorText}\n\nAnswer the user's follow-up questions about this relationship in warm, plain prose grounded in the framework and the scores. Keep answers focused and practical. No em dashes.` }];
+    const seedParts = [{ text: `CONTEXT FOR THIS CONVERSATION:\n\n${contextText}${priorText}\n\nAnswer the user's follow-up questions about this relationship in warm, plain prose grounded in the framework and the actual scores. Think it through before answering. Give a substantial, useful answer: name the dimensions and metaphors at work, explain the mechanism behind what they are experiencing, and give concrete, specific things to try. Several paragraphs when the question warrants it, shorter when it truly does not. Never give a thin or generic answer. No em dashes.` }];
     for (const pp of pdfParts) seedParts.push(pp);
     contents.push({ role: "user", parts: seedParts });
     contents.push({ role: "model", parts: [{ text: "Understood. I have their profiles and context in view. What would you like to explore?" }] });
@@ -204,9 +247,14 @@ export async function onRequestPost(context) {
     const payload = {
       systemInstruction: { parts: [{ text: SYSTEM }] },
       contents,
-      generationConfig: { temperature: 0.8, topP: 0.95, maxOutputTokens: 2048 }
+      generationConfig: {
+        temperature: 0.8,
+        topP: 0.95,
+        maxOutputTokens: 16384,
+        thinkingConfig: { thinkingLevel: "high" }
+      }
     };
-    const text = await callGemini(key, payload);
+    const { text } = await callGemini(key, payload);
     return json({ reply: text.trim() });
   } catch (err) {
     return json({ error: String(err.message || err) }, 502);
