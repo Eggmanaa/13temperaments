@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connection Analysis · The Thirteen Temperaments</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400..800;1,6..72,400..800&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#201510; --ink:#2B1D12; --ink2:#4A3826; --muted:#8A6D40; --faint:#A08A66;
+    --cream:#EDE0C8; --cream2:#F4EAD6; --card:#E4D6B8; --line:#C9B489;
+    --gold:#C29245; --gold2:#E4C98F; --terra:#A6482A; --terra2:#8C3A20; --panel:#2B1D12;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:'Newsreader',Georgia,serif;-webkit-font-smoothing:antialiased;}
+  body{background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="160" height="160" filter="url(%23n)" opacity="0.05"/></svg>');}
+  a{color:var(--gold);text-decoration:none} a:hover{color:var(--gold2)}
+  .sans{font-family:'IBM Plex Sans',sans-serif}
+  .wrap{max-width:940px;margin:0 auto;padding:0 22px 90px}
+  header.top{max-width:940px;margin:0 auto;padding:26px 22px 8px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .logo{width:40px;height:40px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--gold2),var(--terra));flex:none;box-shadow:0 2px 14px rgba(0,0,0,.5)}
+  .brand h2{font-size:19px;font-weight:600;margin:0;color:var(--cream)}
+  .brand span{font-family:'IBM Plex Sans',sans-serif;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint)}
+  .navlink{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--gold)}
+  .hero{text-align:center;padding:30px 0 8px}
+  .hero .kicker{font-family:'IBM Plex Sans',sans-serif;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin:0}
+  .hero h1{font-size:52px;font-weight:500;line-height:1.04;margin:10px 0 0;color:var(--cream)}
+  .hero p{max-width:640px;margin:16px auto 0;font-size:18px;line-height:1.5;color:var(--cream2);opacity:.92}
+  .card{background:var(--cream);border:1px solid var(--line);border-radius:14px;padding:24px 24px;margin:22px 0;box-shadow:0 10px 40px rgba(0,0,0,.28)}
+  .card h3{font-size:25px;font-weight:500;margin:0 0 4px}
+  .card .sub{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:var(--muted);margin:0 0 16px;line-height:1.5}
+  .step{font-family:'IBM Plex Sans',sans-serif;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--terra);font-weight:600}
+  .people{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 4px}
+  .chip{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line);
+    background:var(--cream2);cursor:pointer;user-select:none;transition:.12s;display:flex;flex-direction:column;gap:2px;min-width:120px}
+  .chip small{color:var(--faint);font-size:11px}
+  .chip.sel{border-color:var(--terra);background:#F6ECD6;box-shadow:0 0 0 2px rgba(166,72,42,.18)}
+  .chip.person{border-style:solid}
+  .empty{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:var(--muted);font-style:italic}
+  .btn{font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:500;border:none;border-radius:10px;cursor:pointer;padding:12px 22px;transition:.15s}
+  .btn.primary{background:var(--terra);color:#F6EAD4} .btn.primary:hover{background:var(--terra2)}
+  .btn.dark{background:var(--panel);color:var(--cream)} .btn.dark:hover{background:#3d2a1a}
+  .btn.ghost{background:transparent;color:var(--ink2);border:1.5px solid var(--line)} .btn.ghost:hover{background:var(--cream2)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  label.fld{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;color:var(--ink2);font-weight:500;display:block;margin:14px 0 6px}
+  input[type=text],select,textarea{font-family:'IBM Plex Sans',sans-serif;font-size:14px;color:var(--ink);
+    background:var(--cream2);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;width:100%}
+  textarea{resize:vertical;min-height:64px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}.hero h1{font-size:40px}}
+  details.manual{border:1px dashed var(--line);border-radius:10px;padding:8px 14px;margin-top:12px;background:var(--cream2)}
+  details.manual summary{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;cursor:pointer;color:var(--terra);font-weight:500;padding:6px 0}
+  .sliderrow{display:grid;grid-template-columns:150px 1fr 34px;align-items:center;gap:10px;margin:7px 0;font-family:'IBM Plex Sans',sans-serif;font-size:12px}
+  .sliderrow .nm{color:var(--ink2);font-weight:500}
+  .sliderrow input[type=range]{width:100%}
+  .sliderrow .val{text-align:right;color:var(--terra);font-weight:600}
+  .poles{display:flex;justify-content:space-between;font-size:10px;color:var(--faint)}
+  .drop{border:2px dashed var(--line);border-radius:12px;padding:22px;text-align:center;background:var(--cream2);cursor:pointer;transition:.15s}
+  .drop:hover,.drop.over{border-color:var(--terra);background:#F6ECD6}
+  .drop .sans{font-size:13.5px;color:var(--muted)}
+  .filechip{font-family:'IBM Plex Sans',sans-serif;font-size:12.5px;background:var(--panel);color:var(--cream);padding:6px 10px;border-radius:8px;display:inline-flex;gap:8px;align-items:center;margin:6px 6px 0 0}
+  .filechip b{font-weight:500}
+  .filechip .x{cursor:pointer;color:var(--gold2)}
+  /* meter */
+  .meterwrap{display:flex;gap:26px;align-items:center;flex-wrap:wrap;justify-content:center;text-align:center}
+  .gauge{position:relative;width:280px;height:158px}
+  .gnum{font-size:56px;font-weight:600;color:var(--panel);line-height:1;font-family:'IBM Plex Sans',sans-serif}
+  .glabel{font-family:'IBM Plex Sans',sans-serif;font-size:14px;font-weight:600;letter-spacing:.02em;margin-top:2px}
+  .grat{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:var(--ink2);max-width:420px;line-height:1.5;margin:10px auto 0}
+  .headline{font-size:24px;font-weight:500;line-height:1.35;text-align:center;color:var(--panel);margin:20px auto 4px;max-width:680px}
+  .seccol{margin-top:8px}
+  .secttl{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500;margin:22px 0 10px}
+  .dot{width:11px;height:11px;border-radius:50%;flex:none}
+  .item{border-left:3px solid var(--line);padding:2px 0 2px 16px;margin:12px 0}
+  .item .t{font-family:'IBM Plex Sans',sans-serif;font-weight:600;font-size:14.5px;color:var(--panel)}
+  .item .d{font-size:16px;line-height:1.5;color:var(--ink2);margin-top:3px}
+  .it-conn{border-color:#66743A}.it-gift{border-color:var(--gold)}.it-cont{border-color:var(--terra)}.it-prac{border-color:#33686B}
+  /* chat */
+  .chatbox{margin-top:8px}
+  .msgs{display:flex;flex-direction:column;gap:12px;margin:10px 0}
+  .msg{font-family:'IBM Plex Sans',sans-serif;font-size:14.5px;line-height:1.55;padding:12px 15px;border-radius:12px;max-width:88%;white-space:pre-wrap}
+  .msg.u{align-self:flex-end;background:var(--panel);color:var(--cream);border-bottom-right-radius:3px}
+  .msg.a{align-self:flex-start;background:var(--cream2);border:1px solid var(--line);border-bottom-left-radius:3px}
+  .chatin{display:flex;gap:10px;margin-top:8px}
+  .chatin input{flex:1}
+  .spin{display:inline-block;width:15px;height:15px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .err{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:#7a2e18;background:#F3D9CE;border:1px solid #d9a08c;border-radius:9px;padding:10px 12px;margin-top:12px}
+  .hide{display:none}
+  .foot{text-align:center;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--faint);margin-top:30px;line-height:1.6}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><div class="logo"></div>
+    <div><h2>The Thirteen Temperaments</h2><span>Connection Analysis</span></div></div>
+  <a class="navlink" href="./index.html">&larr; Back to the Atlas</a>
+</header>
+
+<div class="wrap">
+  <div class="hero">
+    <p class="kicker">Where two temperaments meet</p>
+    <h1>Connection Analysis</h1>
+    <p>Bring two or more temperament profiles together and see where you naturally flow, the gifts each of you carries into the bond, and the places that ask for patience. Grounded in all thirteen dimensions.</p>
+  </div>
+
+  <!-- STEP 1: PEOPLE -->
+  <div class="card">
+    <div class="step">Step 1</div>
+    <h3>Choose the people</h3>
+    <p class="sub">Pick two or more. Saved profiles from this device appear below. You can also add someone by hand, or upload their results PDF.</p>
+
+    <div id="savedBlock">
+      <label class="fld">Saved profiles on this device</label>
+      <div class="people" id="savedPeople"></div>
+    </div>
+
+    <details class="manual">
+      <summary>+ Add a person by hand</summary>
+      <label class="fld">Name</label>
+      <input type="text" id="mName" placeholder="e.g. Jordan">
+      <p class="sub" style="margin:12px 0 4px">Slide each dimension toward the pole that fits. Middle means balanced.</p>
+      <div id="sliders"></div>
+      <div style="margin-top:12px"><button class="btn ghost" id="addManual">Add this person</button></div>
+    </details>
+
+    <div style="margin-top:18px">
+      <label class="fld">Upload results PDF(s)</label>
+      <div class="drop" id="drop">
+        <div class="sans"><b>Click to choose</b> or drop PDF result files here</div>
+        <div class="sans" style="font-size:12px;margin-top:4px">Each person's printed / saved report. The analyst reads their scores from the file.</div>
+      </div>
+      <input type="file" id="file" accept="application/pdf" multiple class="hide">
+      <div id="fileList"></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: RELATIONSHIP -->
+  <div class="card">
+    <div class="step">Step 2</div>
+    <h3>How are they related?</h3>
+    <p class="sub">This shapes what "ease of flow" means. A parent and child are read differently than two coworkers.</p>
+    <div class="grid2">
+      <div>
+        <label class="fld">Relationship type</label>
+        <select id="relType">
+          <option value="">Choose one…</option>
+          <option>Spouses / partners</option>
+          <option>Dating</option>
+          <option>Parent and child</option>
+          <option>Siblings</option>
+          <option>Close friends</option>
+          <option>Roommates</option>
+          <option>Coworkers / peers</option>
+          <option>Manager and report</option>
+          <option>Teacher and student</option>
+          <option>Coach and client</option>
+          <option>Teammates</option>
+          <option>Other / mixed group</option>
+        </select>
+      </div>
+      <div>
+        <label class="fld">Who is who (optional)</label>
+        <input type="text" id="relWho" placeholder="e.g. Aaron is the parent, Genesis is the child">
+      </div>
+    </div>
+    <label class="fld">Anything else worth knowing? (optional)</label>
+    <textarea id="relNote" placeholder="Context, history, what you're hoping to understand…"></textarea>
+  </div>
+
+  <div style="text-align:center;margin:8px 0 4px">
+    <button class="btn primary" id="analyzeBtn" style="font-size:16px;padding:15px 40px">Analyze the connection</button>
+    <div id="selCount" class="sans" style="font-size:12.5px;color:var(--faint);margin-top:10px"></div>
+  </div>
+  <div id="err" class="err hide"></div>
+
+  <!-- RESULTS -->
+  <div class="card hide" id="results">
+    <div class="step" id="resScope">Result</div>
+    <h3>Ease of flow</h3>
+    <div class="meterwrap">
+      <div class="gauge">
+        <svg viewBox="0 0 280 158" width="280" height="158">
+          <defs>
+            <linearGradient id="ggrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stop-color="#A6482A"/><stop offset="0.5" stop-color="#C29245"/><stop offset="1" stop-color="#66743A"/>
+            </linearGradient>
+          </defs>
+          <path d="M20 148 A118 118 0 0 1 260 148" fill="none" stroke="#D8C69E" stroke-width="20" stroke-linecap="round"/>
+          <path id="arcVal" d="M20 148 A118 118 0 0 1 260 148" fill="none" stroke="url(#ggrad)" stroke-width="20" stroke-linecap="round" stroke-dasharray="0 999"/>
+          <g id="needle"><line x1="140" y1="148" x2="140" y2="52" stroke="#2B1D12" stroke-width="3.5" stroke-linecap="round"/><circle cx="140" cy="148" r="8" fill="#2B1D12"/></g>
+        </svg>
+        <div style="position:absolute;top:74px;left:0;right:0;text-align:center">
+          <div class="gnum" id="gnum">–</div>
+        </div>
+      </div>
+      <div style="min-width:220px">
+        <div class="glabel" id="glabel"></div>
+        <div class="grat" id="grat"></div>
+      </div>
+    </div>
+    <div class="headline" id="headline"></div>
+
+    <div id="sections"></div>
+
+    <!-- CHAT -->
+    <div class="chatbox">
+      <div class="secttl"><span class="dot" style="background:#33686B"></span> Ask a follow-up</div>
+      <p class="sub" style="margin-top:-4px">Ask anything about this pairing — a specific situation, how to handle a recurring friction, what to lean on.</p>
+      <div class="msgs" id="msgs"></div>
+      <div class="chatin">
+        <input type="text" id="chatInput" placeholder="e.g. How should we handle disagreements about plans?">
+        <button class="btn dark" id="chatSend">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    The Thirteen Temperaments · Connection Analysis is a reflective tool, not a diagnosis or clinical assessment.<br>
+    Your profiles stay in your browser; only the data you choose to analyze is sent for interpretation.
+  </div>
+</div>
+
+<script>
+// ---- minimal dimension metadata (id, name, poles) ----
+const DIMS = [
+  {id:'engine',name:'Motor Activity',poles:['Still & deliberate','Ceaseless motion']},
+  {id:'dynamo',name:'Stimulation Need',poles:['Calm & steady','Hungry for intensity']},
+  {id:'metronome',name:'Biological Rhythmicity',poles:['Improvised','Clockwork']},
+  {id:'attuned',name:'Sensory Sensitivity',poles:['Needs strong input','Notices everything']},
+  {id:'pioneer',name:'Novelty & Reward Approach',poles:['Watches first','Steps through']},
+  {id:'kindler',name:'Positive Affect & Pleasure',poles:['Quiet delight','Bright joy']},
+  {id:'kindred',name:'Affiliation & Social Reward',poles:['Rewarded by solitude','Rewarded by closeness']},
+  {id:'sentinel',name:'Threat Sensitivity',poles:['Slow to alarm','Quick to vigilance']},
+  {id:'forge',name:'Frustration & Anger',poles:['Slow to kindle','Quick to protest']},
+  {id:'tender',name:'Sadness & Loss Sensitivity',poles:['Recovers quickly','Feels loss deeply']},
+  {id:'lightning',name:'Attentional Capture',poles:['Hard to divert','Easily drawn']},
+  {id:'lantern',name:'Effortful Attentional Control',poles:['Structure-dependent','Self-directed']},
+  {id:'steward',name:'Behavioral Regulation',poles:['Impulse-led','Purpose-governed']}
+];
+const $=s=>document.querySelector(s); const el=(t,c)=>{const e=document.createElement(t);if(c)e.className=c;return e;};
+
+// ---- state ----
+let saved=[]; try{saved=JSON.parse(localStorage.getItem('atlas.profiles')||'[]')||[];}catch(e){}
+const selected=new Set();       // ids of chosen saved/manual profiles
+const manualPeople=[];          // {id,name,mode:'manual',scores}
+const pdfs=[];                  // {name,mimeType,data}
+let lastAnalysis=null; let lastContext=null;
+const chatHistory=[];
+
+// ---- render saved people ----
+function renderPeople(){
+  const box=$('#savedPeople'); box.innerHTML='';
+  const all=[...saved, ...manualPeople];
+  if(!all.length){ box.appendChild(Object.assign(el('div','empty'),{textContent:'No saved profiles yet. Add one by hand or upload a PDF below.'})); }
+  all.forEach(p=>{
+    const c=el('div','chip person'); if(selected.has(p.id)) c.classList.add('sel');
+    const nm=el('b'); nm.textContent=p.name||'Unnamed';
+    const sm=el('small'); sm.textContent=(p.mode==='manual'?'entered by hand':(p.mode?p.mode+'-report':'saved'))+(p.date?' · '+p.date:'');
+    c.appendChild(nm); c.appendChild(sm);
+    c.onclick=()=>{ selected.has(p.id)?selected.delete(p.id):selected.add(p.id); renderPeople(); updateCount(); };
+    box.appendChild(c);
+  });
+}
+// ---- manual sliders ----
+function renderSliders(){
+  const box=$('#sliders'); box.innerHTML='';
+  DIMS.forEach(d=>{
+    const row=el('div','sliderrow');
+    const nm=el('div','nm'); nm.textContent=d.name;
+    const wrap=el('div');
+    const r=el('input'); r.type='range'; r.min='1'; r.max='7'; r.step='0.1'; r.value='4'; r.dataset.id=d.id;
+    const poles=el('div','poles'); poles.innerHTML='<span>'+d.poles[0]+'</span><span>'+d.poles[1]+'</span>';
+    wrap.appendChild(r); wrap.appendChild(poles);
+    const val=el('div','val'); val.textContent='4.0';
+    r.oninput=()=>val.textContent=parseFloat(r.value).toFixed(1);
+    row.appendChild(nm); row.appendChild(wrap); row.appendChild(val);
+    box.appendChild(row);
+  });
+}
+$('#addManual').onclick=()=>{
+  const name=$('#mName').value.trim()||('Person '+(manualPeople.length+1));
+  const scores={}; document.querySelectorAll('#sliders input[type=range]').forEach(r=>scores[r.dataset.id]=parseFloat(r.value));
+  const id='m'+Date.now(); manualPeople.push({id,name,mode:'manual',scores}); selected.add(id);
+  $('#mName').value=''; document.querySelectorAll('#sliders input[type=range]').forEach(r=>{r.value=4;r.dispatchEvent(new Event('input'));});
+  renderPeople(); updateCount();
+};
+
+// ---- PDF upload ----
+const drop=$('#drop'), fileInput=$('#file');
+drop.onclick=()=>fileInput.click();
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>handleFiles(e.dataTransfer.files));
+fileInput.onchange=()=>handleFiles(fileInput.files);
+function handleFiles(list){
+  [...list].forEach(f=>{
+    if(f.type!=='application/pdf'){return;}
+    const rd=new FileReader();
+    rd.onload=()=>{ pdfs.push({name:f.name,mimeType:'application/pdf',data:rd.result}); renderFiles(); updateCount(); };
+    rd.readAsDataURL(f);
+  });
+  fileInput.value='';
+}
+function renderFiles(){
+  const box=$('#fileList'); box.innerHTML='';
+  pdfs.forEach((f,i)=>{
+    const c=el('span','filechip'); const b=el('b'); b.textContent=f.name;
+    const x=el('span','x'); x.textContent='✕'; x.onclick=()=>{pdfs.splice(i,1);renderFiles();updateCount();};
+    c.appendChild(b); c.appendChild(x); box.appendChild(c);
+  });
+}
+function sourceCount(){ return selected.size + pdfs.length; }
+function updateCount(){
+  const n=sourceCount();
+  $('#selCount').textContent = n===0 ? 'Add at least two people (profiles or PDFs).'
+    : n===1 ? '1 selected — add one more to compare.' : n+' people selected.';
+  $('#analyzeBtn').disabled = n<2;
+}
+
+// ---- build payload ----
+function gatherProfiles(){
+  const all=[...saved,...manualPeople];
+  return [...selected].map(id=>{
+    const p=all.find(x=>x.id===id); if(!p) return null;
+    return {name:p.name,role:'',mode:p.mode||'',scores:p.scores||{}};
+  }).filter(Boolean);
+}
+function buildContext(){
+  const t=$('#relType').value, who=$('#relWho').value.trim(), note=$('#relNote').value.trim();
+  let s=''; if(t)s+=t; if(who)s+=(s?'. ':'')+who; if(note)s+=(s?'. ':'')+note;
+  return s;
+}
+
+// ---- meter ----
+const ARC_LEN=Math.PI*118; // radius 118
+function setMeter(score,label,rationale){
+  const frac=Math.max(0,Math.min(100,score))/100;
+  $('#arcVal').setAttribute('stroke-dasharray', (ARC_LEN*frac)+' 999');
+  const ang=-90+frac*180; // needle rotation about (140,148)
+  $('#needle').setAttribute('transform','rotate('+ang+' 140 148)');
+  $('#gnum').textContent=Math.round(score);
+  const col = score>=60?'#4f6b2e':score>=40?'#9a6b1e':'#8C3A20';
+  $('#glabel').textContent=label||''; $('#glabel').style.color=col;
+  $('#grat').textContent=rationale||'';
+}
+
+// ---- render sections ----
+function section(title,dotColor,itemsClass,items){
+  const wrap=el('div','seccol');
+  const h=el('div','secttl'); const dot=el('span','dot'); dot.style.background=dotColor;
+  h.appendChild(dot); h.appendChild(document.createTextNode(title)); wrap.appendChild(h);
+  (items||[]).forEach(it=>{
+    const d=el('div','item '+itemsClass);
+    const t=el('div','t'); t.textContent=it.title; const dd=el('div','d'); dd.textContent=it.detail;
+    d.appendChild(t); d.appendChild(dd); wrap.appendChild(d);
+  });
+  return wrap;
+}
+function renderAnalysis(a){
+  setMeter(a.flowScore,a.flowLabel,a.flowRationale);
+  $('#headline').textContent=a.headline||'';
+  const S=$('#sections'); S.innerHTML='';
+  S.appendChild(section('Points of connection','#66743A','it-conn',a.connection));
+  S.appendChild(section('Gifts you flow to','#C29245','it-gift',a.gifts));
+  S.appendChild(section('Points of contention','#A6482A','it-cont',a.contention));
+  S.appendChild(section('Practices to grow the flow','#33686B','it-prac',a.practices));
+}
+
+// ---- API ----
+async function api(payload){
+  const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const d=await r.json();
+  if(!r.ok||d.error) throw new Error(d.error||('Request failed ('+r.status+')'));
+  return d;
+}
+function showErr(m){ const e=$('#err'); e.textContent=m; e.classList.remove('hide'); }
+function clearErr(){ $('#err').classList.add('hide'); }
+
+$('#analyzeBtn').onclick=async()=>{
+  clearErr();
+  const profiles=gatherProfiles(); const relationship=buildContext();
+  if(sourceCount()<2){ showErr('Add at least two people.'); return; }
+  const btn=$('#analyzeBtn'); const old=btn.textContent; btn.disabled=true; btn.innerHTML='<span class="spin"></span> Analyzing…';
+  try{
+    const payload={mode:'analyze',profiles,relationship,pdfs};
+    lastContext=payload;
+    const d=await api(payload);
+    lastAnalysis=d.analysis;
+    renderAnalysis(d.analysis);
+    $('#results').classList.remove('hide');
+    $('#msgs').innerHTML=''; chatHistory.length=0;
+    $('#results').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){ showErr(e.message); }
+  finally{ btn.disabled=false; btn.textContent=old; updateCount(); }
+};
+
+// ---- chat ----
+function addMsg(role,text){
+  const m=el('div','msg '+(role==='user'?'u':'a')); m.textContent=text; $('#msgs').appendChild(m);
+  $('#msgs').scrollTop=$('#msgs').scrollHeight; return m;
+}
+async function sendChat(){
+  const inp=$('#chatInput'); const q=inp.value.trim(); if(!q) return;
+  inp.value=''; addMsg('user',q); chatHistory.push({role:'user',text:q});
+  const thinking=addMsg('assistant','…'); $('#chatSend').disabled=true;
+  try{
+    const d=await api({mode:'chat',question:q,history:chatHistory.slice(0,-1),
+      profiles:lastContext.profiles,relationship:lastContext.relationship,pdfs:lastContext.pdfs,priorAnalysis:lastAnalysis});
+    thinking.textContent=d.reply; chatHistory.push({role:'assistant',text:d.reply});
+  }catch(e){ thinking.textContent='Sorry — '+e.message; }
+  finally{ $('#chatSend').disabled=false; inp.focus(); }
+}
+$('#chatSend').onclick=sendChat;
+$('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+
+// ---- init ----
+renderPeople(); renderSliders(); updateCount();
+</script>
+</body>
+</html>

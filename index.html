@@ -38,6 +38,7 @@
       <nav style="display:flex; gap:4px; align-items:center; font-family:'IBM Plex Sans',sans-serif;">
         <button onClick="{{ goLibrary }}" style="background:none; border:none; cursor:pointer; padding:8px 12px; color:#C9B18B; font-size:13px;" style-hover="color:#F0E4CC;">The Thirteen</button>
         <button onClick="{{ goProfiles }}" style="background:none; border:none; cursor:pointer; padding:8px 12px; color:#C9B18B; font-size:13px;" style-hover="color:#F0E4CC;">Saved Profiles</button>
+        <a href="./connect.html" style="text-decoration:none; padding:8px 12px; color:#C9B18B; font-size:13px;" style-hover="color:#F0E4CC;">Connection Analysis</a>
         <button onClick="{{ goSetup }}" style="background:#A6482A; color:#F4E8D0; border:none; cursor:pointer; padding:10px 20px; border-radius:2px; font-size:13px; font-weight:500; letter-spacing:0.02em;" style-hover="background:#8C3A20;">Take the Assessment</button>
       </nav>
     </div>
@@ -328,6 +329,7 @@
         <p style="font-family:'IBM Plex Sans',sans-serif; font-size:13px; color:#8A6D40; margin:12px 0 0;">{{ resMeta }}</p>
         <div data-noprint="true" style="display:flex; gap:10px; justify-content:center; margin-top:22px; flex-wrap:wrap;">
           <button onClick="{{ printReport }}" style="background:#2B1D12; color:#EDE0C8; border:none; cursor:pointer; padding:11px 20px; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;" style-hover="background:#4A3423;">Print / save as PDF</button>
+          <a href="./connect.html" style="text-decoration:none; background:#A6482A; color:#F4E8D0; padding:11px 20px; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px;" style-hover="background:#8C3A20;">Analyze a connection</a>
           <button onClick="{{ goProfiles }}" style="background:none; border:1px solid #8A6D40; cursor:pointer; padding:11px 20px; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px; color:#4A3826;" style-hover="border-color:#2B1D12;">Compare profiles</button>
           <button onClick="{{ goSetup }}" style="background:none; border:1px solid #8A6D40; cursor:pointer; padding:11px 20px; font-family:'IBM Plex Sans',sans-serif; font-size:12.5px; color:#4A3826;" style-hover="border-color:#2B1D12;">Take it again</button>
         </div>
