@@ -51,7 +51,7 @@
     background:var(--cream2);border:1.5px solid var(--line);border-radius:9px;padding:10px 12px;width:100%}
   textarea{resize:vertical;min-height:64px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-  @media(max-width:640px){.grid2{grid-template-columns:1fr}.hero h1{font-size:40px}}
+
   details.manual{border:1px dashed var(--line);border-radius:10px;padding:8px 14px;margin-top:12px;background:var(--cream2)}
   details.manual summary{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;cursor:pointer;color:var(--terra);font-weight:500;padding:6px 0}
   .sliderrow{display:grid;grid-template-columns:150px 1fr 34px;align-items:center;gap:10px;margin:7px 0;font-family:'IBM Plex Sans',sans-serif;font-size:12px}
@@ -99,6 +99,58 @@
   .err{font-family:'IBM Plex Sans',sans-serif;font-size:13.5px;color:#7a2e18;background:#F3D9CE;border:1px solid #d9a08c;border-radius:9px;padding:10px 12px;margin-top:12px}
   .hide{display:none}
   .foot{text-align:center;font-family:'IBM Plex Sans',sans-serif;font-size:12px;color:var(--faint);margin-top:30px;line-height:1.6}
+
+  /* ================= RESPONSIVE ================= */
+  html,body{overflow-x:hidden}
+  img,svg{max-width:100%}
+  *{-webkit-text-size-adjust:100%}
+  .hero h1{font-size:clamp(32px,7.4vw,52px)}
+  .hero p{font-size:clamp(15.5px,2.2vw,18px)}
+  .card h3{font-size:clamp(21px,3.2vw,25px)}
+  .headline{font-size:clamp(19px,3vw,24px)}
+  .gnum{font-size:clamp(42px,11vw,56px)}
+
+  /* iPad portrait and below */
+  @media(max-width:1024px){
+    .wrap{padding:0 18px 70px}
+    header.top{padding:20px 18px 8px}
+  }
+  /* large phones / small tablets */
+  @media(max-width:760px){
+    .grid2{grid-template-columns:1fr}
+    .card{padding:20px 17px;border-radius:12px}
+    .meterwrap{flex-direction:column;gap:14px}
+    .msg{max-width:94%}
+    .item{padding-left:13px}
+    .item .d{font-size:15.5px}
+    /* the 150px label column crowds the slider on a phone */
+    .sliderrow{grid-template-columns:1fr;gap:3px;margin:14px 0}
+    .sliderrow .val{text-align:left}
+    .sliderrow .nm{font-weight:600}
+    header.top{flex-wrap:wrap;gap:10px}
+    .brand h2{font-size:17px}
+  }
+  /* small phones */
+  @media(max-width:430px){
+    .wrap{padding:0 14px 60px}
+    .gauge{width:236px;height:134px}
+    .gauge svg{width:236px;height:134px}
+    .gauge>div{top:60px !important}
+    .hero{padding:20px 0 4px}
+    .chatin{flex-direction:column}
+    .chatin .btn{width:100%}
+    .chip{min-width:0;flex:1 1 100%}
+  }
+  /* touch devices */
+  @media(pointer:coarse){
+    .btn,.chip,.filechip .x,summary{min-height:44px}
+    .btn{padding:13px 22px}
+    .chip{padding:12px 14px}
+    /* iOS zooms on focus for inputs under 16px */
+    input[type=text],select,textarea{font-size:16px}
+    input[type=range]{height:34px}
+    .drop{padding:26px 18px}
+  }
 </style>
 </head>
 <body>

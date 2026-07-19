@@ -19,6 +19,80 @@
   * { box-sizing:border-box; }
   button { font-family:inherit; }
   input::placeholder { color:#A08A66; }
+
+  /* ============================================================
+     RESPONSIVE LAYER  (phones, iPads, desktop)
+     This view is built from inline styles, which outrank normal
+     stylesheet rules, so overrides below are matched against the
+     browser-normalised style attribute ("prop: value") and marked
+     !important. Type scales fluidly with clamp() so it adapts to
+     any device width rather than snapping at fixed breakpoints.
+     ============================================================ */
+  html, body { overflow-x:hidden; }
+  img, svg, video { max-width:100%; height:auto; }
+  * { -webkit-text-size-adjust:100%; }
+
+  /* Inline styles may be serialised with or without a space after the colon
+     depending on how they are set, so every selector below matches both. */
+
+  /* --- fluid display type (all devices) --- */
+  [style*="font-size: 78px"],  [style*="font-size:78px"]  { font-size:clamp(34px, 8.6vw, 78px) !important; }
+  [style*="font-size: 46px"],  [style*="font-size:46px"]  { font-size:clamp(28px, 5.6vw, 46px) !important; }
+  [style*="font-size: 44px"],  [style*="font-size:44px"]  { font-size:clamp(27px, 5.4vw, 44px) !important; }
+  [style*="font-size: 42px"],  [style*="font-size:42px"]  { font-size:clamp(26px, 5.2vw, 42px) !important; }
+  [style*="font-size: 38px"],  [style*="font-size:38px"]  { font-size:clamp(24px, 4.8vw, 38px) !important; }
+  [style*="font-size: 29px"],  [style*="font-size:29px"]  { font-size:clamp(21px, 3.6vw, 29px) !important; }
+  [style*="font-size: 200px"], [style*="font-size:200px"] { font-size:clamp(78px, 21vw, 200px) !important; }
+  [style*="font-size: 120px"], [style*="font-size:120px"] { font-size:clamp(52px, 15vw, 120px) !important; }
+
+  /* --- iPad and below --- */
+  @media (max-width:1024px) {
+    /* Fixed-width label columns would force horizontal scroll.
+       NOTE: "215px 1fr" is a substring of "215px 1fr 130px", so the
+       two-column rule is declared FIRST and the three-column rule
+       second, letting the more specific match win. */
+    [style*="grid-template-columns: 215px 1fr"],
+    [style*="grid-template-columns:215px 1fr"]       { grid-template-columns:150px 1fr !important; gap:12px !important; }
+    [style*="grid-template-columns: 215px 1fr 130px"],
+    [style*="grid-template-columns:215px 1fr 130px"] { grid-template-columns:150px 1fr 74px !important; gap:12px !important; }
+    [style*="padding: 96px 24px 110px"], [style*="padding:96px 24px 110px"] { padding:68px 20px 76px !important; }
+    [style*="padding: 56px 24px 90px"],  [style*="padding:56px 24px 90px"]  { padding:44px 20px 64px !important; }
+    [style*="padding: 52px 24px 90px"],  [style*="padding:52px 24px 90px"]  { padding:42px 20px 64px !important; }
+    [style*="min-height: 560px"],        [style*="min-height:560px"]        { min-height:62vh !important; }
+  }
+
+  /* --- phones / small tablets --- */
+  @media (max-width:680px) {
+    /* every multi-column grid becomes a single column */
+    [style*="display: grid"], [style*="display:grid"] { grid-template-columns:1fr !important; }
+    [style*="grid-template-columns: 215px 1fr 130px"],
+    [style*="grid-template-columns:215px 1fr 130px"],
+    [style*="grid-template-columns: 215px 1fr"],
+    [style*="grid-template-columns:215px 1fr"] { gap:6px !important; }
+    [style*="padding: 96px 24px 110px"], [style*="padding:96px 24px 110px"] { padding:48px 16px 56px !important; }
+    [style*="padding: 56px 24px 90px"],  [style*="padding:56px 24px 90px"]  { padding:32px 16px 46px !important; }
+    [style*="padding: 52px 24px 90px"],  [style*="padding:52px 24px 90px"]  { padding:30px 16px 46px !important; }
+    [style*="padding: 28px 30px"],       [style*="padding:28px 30px"]       { padding:20px 16px !important; }
+    [style*="padding: 30px 32px"],       [style*="padding:30px 32px"]       { padding:20px 16px !important; }
+    [style*="padding: 26px 24px"],       [style*="padding:26px 24px"]       { padding:18px 15px !important; }
+    [style*="padding: 16px 22px"],       [style*="padding:16px 22px"]       { padding:14px 15px !important; }
+    [style*="padding: 12px 24px"],       [style*="padding:12px 24px"]       { padding:10px 15px !important; }
+    /* wide tracking overflows narrow screens */
+    [style*="letter-spacing: 0.34em"], [style*="letter-spacing:0.34em"] { letter-spacing:0.14em !important; }
+    [style*="letter-spacing: 0.32em"], [style*="letter-spacing:0.32em"] { letter-spacing:0.14em !important; }
+    [style*="letter-spacing: 0.26em"], [style*="letter-spacing:0.26em"] { letter-spacing:0.12em !important; }
+    /* header stacks and centres */
+    nav { width:100%; justify-content:center !important; flex-wrap:wrap !important; }
+  }
+
+  /* --- touch devices: comfortable hit targets (Apple HIG ~44px) --- */
+  @media (pointer:coarse) {
+    button, a[href], [role="button"] { min-height:44px; }
+    button { touch-action:manipulation; }
+    /* iOS Safari zooms the page when focusing a sub-16px input */
+    input, select, textarea { font-size:16px !important; }
+  }
+
   @media print {
     [data-noprint] { display:none !important; }
     html, body { background:#fff; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
