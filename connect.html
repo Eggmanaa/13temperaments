@@ -141,6 +141,37 @@
     .chatin .btn{width:100%}
     .chip{min-width:0;flex:1 1 100%}
   }
+  /* ================= PRINT / SAVE AS PDF =================
+     Only the finished report prints. The page canvas is dark with
+     cream cards, so print flips to plain dark-on-white, since most
+     browsers drop background graphics when printing. */
+  @media print{
+    @page{margin:14mm}
+    html,body{background:#fff !important;color:#000 !important;overflow:visible !important}
+    body{background-image:none !important}
+    *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+    /* everything that is not the report itself */
+    header.top,.hero,.noprint,.chatin,.foot,#err,.chatbox .secttl,.chatbox .sub{display:none !important}
+    .card{display:none !important}
+    #results{display:block !important;background:#fff !important;border:none !important;
+      box-shadow:none !important;padding:0 !important;margin:0 !important}
+    .wrap{padding:0 !important;max-width:100% !important}
+    /* keep the meter, render it as ink on white */
+    .gauge{width:250px !important;height:142px !important}
+    .gauge svg{width:250px !important;height:142px !important}
+    .gnum{color:#000 !important}
+    .overview{background:#F6EEDC !important;border:1px solid #999 !important}
+    .item .d,.overview p,.closing p,.grat{color:#111 !important}
+    .item{border-left:3px solid #555 !important}
+    /* page-seam control */
+    .item,.overview,.closing,.meterwrap{break-inside:avoid;page-break-inside:avoid}
+    .secttl{break-after:avoid;page-break-after:avoid}
+    p{orphans:3;widows:3}
+    /* keep any answered follow-up questions with the report */
+    .msgs{display:flex !important}
+    .msg{max-width:100% !important;border:1px solid #bbb !important;background:#fff !important;color:#000 !important}
+  }
+
   /* touch devices */
   @media(pointer:coarse){
     .btn,.chip,.filechip .x,summary{min-height:44px}
@@ -231,7 +262,7 @@
     <textarea id="relNote" placeholder="Context, history, what you're hoping to understand…"></textarea>
   </div>
 
-  <div style="text-align:center;margin:8px 0 4px">
+  <div class="noprint" style="text-align:center;margin:8px 0 4px">
     <button class="btn primary" id="analyzeBtn" style="font-size:16px;padding:15px 40px">Analyze the connection</button>
     <div id="selCount" class="sans" style="font-size:12.5px;color:var(--faint);margin-top:10px"></div>
   </div>
@@ -263,6 +294,10 @@
       </div>
     </div>
     <div class="headline" id="headline"></div>
+
+    <div class="noprint" style="text-align:center;margin:14px 0 2px">
+      <button class="btn dark" id="printBtn">Print / save as PDF</button>
+    </div>
 
     <div id="sections"></div>
 
@@ -500,6 +535,15 @@ async function sendChat(){
   }catch(e){ thinking.textContent='Sorry — '+e.message; }
   finally{ $('#chatSend').disabled=false; inp.focus(); }
 }
+$('#printBtn').onclick=()=>{
+  let fired=false;
+  const fire=()=>{ if(fired) return; fired=true; window.print(); };
+  const afterPaint=()=>requestAnimationFrame(()=>requestAnimationFrame(fire));
+  const fonts=(document.fonts&&document.fonts.ready)?document.fonts.ready:Promise.resolve();
+  fonts.then(()=>setTimeout(afterPaint,200)).catch(()=>setTimeout(afterPaint,200));
+  // rAF is suspended in hidden/throttled tabs; guarantee the dialog opens
+  setTimeout(fire,1200);
+};
 $('#chatSend').onclick=sendChat;
 $('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
 
